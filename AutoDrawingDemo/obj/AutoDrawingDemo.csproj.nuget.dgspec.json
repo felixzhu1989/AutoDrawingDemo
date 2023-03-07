@@ -46,6 +46,10 @@
             "Prism.DryIoc": {
               "target": "Package",
               "version": "[8.1.97, )"
+            },
+            "Visiativ.SOLIDWORKS.Interop": {
+              "target": "Package",
+              "version": "[31.1.0, )"
             }
           },
           "imports": [

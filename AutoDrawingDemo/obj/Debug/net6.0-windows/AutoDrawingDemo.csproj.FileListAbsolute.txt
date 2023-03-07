@@ -28,3 +28,13 @@ E:\CSharp\repos\AutoDrawingDemo\AutoDrawingDemo\obj\Debug\net6.0-windows\ref\Aut
 E:\CSharp\repos\AutoDrawingDemo\AutoDrawingDemo\obj\Debug\net6.0-windows\Views\MainView.g.cs
 E:\CSharp\repos\AutoDrawingDemo\AutoDrawingDemo\obj\Debug\net6.0-windows\App.baml
 E:\CSharp\repos\AutoDrawingDemo\AutoDrawingDemo\obj\Debug\net6.0-windows\Views\MainView.baml
+E:\CSharp\repos\AutoDrawingDemo\AutoDrawingDemo\obj\Debug\net6.0-windows\Views\DrawingDataView.g.cs
+E:\CSharp\repos\AutoDrawingDemo\AutoDrawingDemo\obj\Debug\net6.0-windows\Views\DrawingDataView.baml
+E:\CSharp\repos\AutoDrawingDemo\AutoDrawingDemo\obj\Debug\net6.0-windows\GeneratedInternalTypeHelper.g.cs
+E:\CSharp\repos\AutoDrawingDemo\AutoDrawingDemo\obj\Debug\net6.0-windows\Views\MsgView.baml
+E:\CSharp\repos\AutoDrawingDemo\AutoDrawingDemo\obj\Debug\net6.0-windows\Views\MsgView.g.cs
+E:\CSharp\repos\AutoDrawingDemo\AutoDrawingDemo\bin\Debug\net6.0-windows\SolidWorks.Interop.sldworks.dll
+E:\CSharp\repos\AutoDrawingDemo\AutoDrawingDemo\bin\Debug\net6.0-windows\SolidWorks.Interop.swcommands.dll
+E:\CSharp\repos\AutoDrawingDemo\AutoDrawingDemo\bin\Debug\net6.0-windows\SolidWorks.Interop.swconst.dll
+E:\CSharp\repos\AutoDrawingDemo\AutoDrawingDemo\bin\Debug\net6.0-windows\SolidWorks.Interop.swpublished.dll
+E:\CSharp\repos\AutoDrawingDemo\AutoDrawingDemo\obj\Debug\net6.0-windows\AutoDrawingDemo_Content.g.cs

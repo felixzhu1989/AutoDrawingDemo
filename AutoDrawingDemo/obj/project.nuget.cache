@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "E9hf4kJhWvw/ZoaBpZSwGPFZIh8Hy7feJTgADU4z1iElQnnPa7HlUAPVV7lV77ijSa5Sm0uJCeG3Gm1IyagUNw==",
+  "dgSpecHash": "gGAH61M9w7N1ovjcBYYg49vA3N/HwWIpWZNZV9UMdPGLXQmN2rja4XpSJOpRyEmYd1uj8C7Tlk9iF0gLAmmvfg==",
   "success": true,
   "projectFilePath": "E:\\CSharp\\repos\\AutoDrawingDemo\\AutoDrawingDemo\\AutoDrawingDemo.csproj",
   "expectedPackageFiles": [
@@ -20,7 +20,8 @@
     "C:\\Users\\Administrator\\.nuget\\packages\\system.reflection.primitives\\4.3.0\\system.reflection.primitives.4.3.0.nupkg.sha512",
     "C:\\Users\\Administrator\\.nuget\\packages\\system.runtime\\4.3.0\\system.runtime.4.3.0.nupkg.sha512",
     "C:\\Users\\Administrator\\.nuget\\packages\\system.text.encoding\\4.3.0\\system.text.encoding.4.3.0.nupkg.sha512",
-    "C:\\Users\\Administrator\\.nuget\\packages\\system.threading.tasks\\4.3.0\\system.threading.tasks.4.3.0.nupkg.sha512"
+    "C:\\Users\\Administrator\\.nuget\\packages\\system.threading.tasks\\4.3.0\\system.threading.tasks.4.3.0.nupkg.sha512",
+    "C:\\Users\\Administrator\\.nuget\\packages\\visiativ.solidworks.interop\\31.1.0\\visiativ.solidworks.interop.31.1.0.nupkg.sha512"
   ],
   "logs": []
 }

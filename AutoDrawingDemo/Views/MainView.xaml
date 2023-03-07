@@ -22,13 +22,20 @@
         xmlns:prism="http://prismlibrary.com/"
         prism:ViewModelLocator.AutoWireViewModel="True"
         xmlns:extensions="clr-namespace:AutoDrawingDemo.Extensions">
-    <Grid>
+    <materialDesign:DialogHost x:Name="DialogHost"
+                               Identifier="RootDialog"
+                               DialogTheme="Inherit">
+        <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition />
         </Grid.RowDefinitions>
-        <materialDesign:ColorZone Grid.Row="0"
-                                  Padding="6"
+            <!--Snackbar全局通知消息-->
+            <materialDesign:Snackbar x:Name="Snackbar"
+                                     MessageQueue="{materialDesign:MessageQueue}"
+                                     Panel.ZIndex="1" />
+            <materialDesign:ColorZone x:Name="ColorZone" Grid.Row="0"
+                                  Padding="10"
                                   materialDesign:ShadowAssist.ShadowDepth="Depth2"
                                   Mode="PrimaryMid"
                                   DockPanel.Dock="Top"
@@ -75,4 +82,5 @@
                         prism:RegionManager.RegionName="{x:Static extensions:PrismManager.MainViewRegionName}" />
         <!--#endregion-->
     </Grid>
+    </materialDesign:DialogHost>
 </Window>
