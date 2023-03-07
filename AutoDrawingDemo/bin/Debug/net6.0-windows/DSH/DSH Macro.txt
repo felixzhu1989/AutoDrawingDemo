@@ -1,0 +1,480 @@
+Sub main() 'r12 删除cutlist txt
+Dim Tstart
+Tstart = Timer
+Dim swApp As SldWorks.SldWorks
+Dim swModelDoc1 As ModelDoc2
+Dim swExt As ModelDocExtension
+Dim swSelMgr As SldWorks.SelectionMgr
+Dim swComp As SldWorks.Component2
+Dim swAssem As SldWorks.AssemblyDoc
+Dim featMgr As SldWorks.FeatureManager
+Set swApp = Application.SldWorks
+Set swModelDoc1 = swApp.ActiveDoc
+Set swAssem = swModelDoc1
+Dim vComponents As Variant  '所有部件的集合数组
+Dim vCompnonetsldprt() As Component2  '零件部件的集合数组
+'vComponents = swAssem.GetComponents(True)
+vComponents = swAssem.GetComponents(False)   '获得所有部件
+Dim count1 As Integer
+count1 = UBound(vComponents) - LBound(vComponents) + 1 '获得部件数量
+Dim i As Integer '所有部件计数器
+Dim Y As Integer  '零件部件计数器
+Dim origfilepath As String '零件部件的全名
+Dim expfilepath As String '要导出的dxf全名
+Dim swPart As PartDoc '要导出的部件文档
+Dim fileerror As Long
+Dim filewarning As Long
+Dim dataAlignment(11) As Double
+Dim varViews As Variant
+Dim dataViews(1) As String
+Dim varAlignment As Variant
+Dim parttitle As String '要导出的文档名称
+Dim options As Long
+Dim bol As Boolean
+Dim swModelDocExt As SldWorks.ModelDocExtension
+Dim longstatus As Long, longwarnings As Long
+Dim swBody      As Body2   'body
+Dim varBodies   As Variant 'body集合
+Dim z As Integer 'body计数器
+Dim issheet As Boolean '是否是板金
+Dim fs As Object '文件系统对象
+'Dim cutlisttxt As Object  'cutlist wenjiantxt
+Dim txtfulpath As String
+Dim sMatName  As String  '定义材料名称
+Dim sMatDB  As String '配置
+Dim featurename1 As String
+Dim swFeat As SldWorks.Feature
+Dim swSubFeat                   As SldWorks.Feature
+Dim swSubSubFeat                As SldWorks.Feature
+Dim swSubSubSubFeat             As SldWorks.Feature
+Dim vSuppStateArr    As Variant
+Dim featuresup As Boolean
+Dim vConfNameArr            As Variant
+Dim solibodyfolder As Object
+Dim bool As Boolean
+Dim Description As String
+Dim partno As String
+Dim boundingboxlength As String
+Dim sheetthickness As String
+Dim boundingboxwidth As String
+Dim Material As String
+Dim Bends As String
+Dim BendAllowance As String
+Dim BendRadius As String
+Dim Surface As String
+Dim Mass As String
+Dim QUANTITY As String
+Dim config As SldWorks.Configuration
+Dim cusPropMgr As SldWorks.CustomPropertyManager
+Dim lRetVal As Long
+Dim ValOut As String
+Dim ResolvedValOut As String
+Dim wasResolved As Boolean
+Dim swcomponent As Component2
+Dim config_names As Object
+'********************************************************************************
+'COMMON CODE Sample
+'SW零件压缩与打开语句
+'Set swcomponent = swAssem.GetComponentByName(addsuffix(suffix, "FNCA0001-1"))
+'swcomponent.SetSuppression2 2 '2 UNSUPPRESS,1 lightweight,0 suppressed
+'Set swModelDoc1 = swcomponent.GetModelDoc2
+'SW修改参数语句
+'swModelDoc1.Parameter("D2@Base-Flange1").SystemValue = SA_LENGTH
+'swModelDoc1.Parameter("D3@LPattern1").SystemValue = SA_SUDIS
+'swModelDoc1.Parameter("D1@LPattern1").SystemValue = SA_SUAMOUNT
+'SW特征压缩语句
+'Set swFeat = swModelDoc1.FeatureByName("LED")
+'swFeat.SetSuppression2 1, 2, config_names '1 UNSUPPRESS,0 suppressed
+'********************************************************************************
+
+
+
+'*************************DIM START*************************************
+'------EX
+Dim THICK As Double: THICK = 3 / 1000# ' getvalue("LENGTH", i, fslistws) / 1000#  '板厚
+Dim SXZB As Double: SXZB = 36 / 1000# ' getvalue("LENGTH", i, fslistws) / 1000#  '上下框折边宽
+Dim ZYZB As Double: ZYZB = 30 / 1000# ' getvalue("LENGTH", i, fslistws) / 1000#  '左右框折边宽
+Dim SXZBH As Double: SXZBH = 26 / 1000# ' getvalue("LENGTH", i, fslistws) / 1000#  '上下框折边高
+Dim ZYZBH As Double: ZYZBH = 26 / 1000# ' getvalue("LENGTH", i, fslistws) / 1000#  '左右框折边高
+Dim MLDJJ As Double: MLDJJ = 150 / 1000# ' getvalue("LENGTH", i, fslistws) / 1000#  '铆螺母虚拟间距
+
+Dim OB As Double: OB = 800 / 1000# ' getvalue("LENGTH", i, fslistws) / 1000#
+Dim B As Double: B = 700 / 1000# ' getvalue("LENGTH", i, fslistws) / 1000#
+Dim OH As Double: OH = 600 / 1000# ' getvalue("LENGTH", i, fslistws) / 1000#
+Dim H As Double: H = 500 / 1000# ' getvalue("LENGTH", i, fslistws) / 1000#
+Dim OW As Double: OW = 160 / 1000# ' getvalue("LENGTH", i, fslistws) / 1000#
+
+Dim BBj As Double: BBj = 20 / 1000# ' getvalue("LENGTH", i, fslistws) / 1000#    ' B向法兰孔边距
+Dim HBj As Double: HBj = 20 / 1000# ' getvalue("LENGTH", i, fslistws) / 1000#     'H向法兰孔边距
+Dim Zj As Double: Zj = 12 / 1000# ' getvalue("LENGTH", i, fslistws) / 1000#       '法兰孔直径
+Dim BKjj As Double: BKjj = 97.5 / 1000# ' getvalue("LENGTH", i, fslistws) / 1000#     'B向第一法兰孔间距
+Dim BXLJJ As Double: BXLJJ = 150 / 1000# ' getvalue("LENGTH", i, fslistws) / 1000#  'B向虚拟间距
+
+Dim HKjj As Double: HKjj = 130 / 1000# ' getvalue("LENGTH", i, fslistws) / 1000#     'H向第一法兰孔间距
+Dim HXLJJ As Double: HXLJJ = 150 / 1000# ' getvalue("LENGTH", i, fslistws) / 1000#  'H向虚拟间距
+
+
+
+
+Dim x As Integer:    '叶片固定件数量
+Dim n As Integer:    n = Int(((B - ZYZB * 2 - 2 / 1000#) - (45 / 1000#)) / (28.5 / 1000#)) + 1 '叶片数量
+Dim m As Double: m = (B - ZYZB * 2 - 2 / 1000# - 5.5 / 1000#) - (n - 1) * (28.5 / 1000#) '最后一个叶片到端面距离
+
+
+
+
+'****************TOP LEVER****************************
+'叶片固定件
+Set swFeat = swAssem.FeatureByName("LocalLPattern1")
+Set swcomponent = swAssem.GetComponentByName(addsuffix(suffix, "MNSS0004-7"))
+Set swcomponent = swAssem.GetComponentByName(addsuffix(suffix, "MNSS0004-13"))
+If B <= 700 / 1000# Then
+   x = 2
+swModelDoc1.Parameter("D1@LocalLPattern1").SystemValue = x
+swModelDoc1.Parameter("D3@LocalLPattern1").SystemValue = B - 2 * THICK - 270 / 1000#
+ElseIf B > 700 / 1000# And B <= 1200 / 1000# Then
+   x = 3
+swModelDoc1.Parameter("D1@LocalLPattern1").SystemValue = x
+swModelDoc1.Parameter("D3@LocalLPattern1").SystemValue = (B - 2 * THICK - 270 / 1000#) / (x - 1)
+
+ElseIf B > 1200 / 1000# And B <= 1600 / 1000# Then
+   x = 4
+swModelDoc1.Parameter("D1@LocalLPattern1").SystemValue = x
+swModelDoc1.Parameter("D3@LocalLPattern1").SystemValue = (B - 2 * THICK - 270 / 1000#) / (x - 1)
+
+End If
+'叶片阵列
+Set swFeat = swAssem.FeatureByName("LocalLPattern2")
+Set swcomponent = swAssem.GetComponentByName(addsuffix(suffix, "MNSD0001-2"))
+Set swcomponent = swAssem.GetComponentByName(addsuffix(suffix, "MNSD0005-1"))
+Set swcomponent = swAssem.GetComponentByName(addsuffix(suffix, "MNSD0006-1"))
+Set swcomponent = swAssem.GetComponentByName(addsuffix(suffix, "MNSD0004-1"))
+swAssem.Parameter("D1@LocalLPattern2").SystemValue = n
+swAssem.Parameter("D1@Distance13").SystemValue = m
+
+Set swcomponent = swAssem.GetComponentByName(addsuffix(suffix, "LH-2021-1"))
+swcomponent.SetSuppression2 0 '2 UNSUPPRESS,1 lightweight,0 suppressed
+Set swcomponent = swAssem.GetComponentByName(addsuffix(suffix, "LH-2020-1"))
+swcomponent.SetSuppression2 0 '2 UNSUPPRESS,1 lightweight,0 suppressed
+If m < 61 / 1000# And m >= 52 / 1000# Then
+    Set swcomponent = swAssem.GetComponentByName(addsuffix(suffix, "LH-2021-1"))
+    swcomponent.SetSuppression2 2 '2 UNSUPPRESS,1 lightweight,0 suppressed
+    Set swModelDoc1 = swcomponent.GetModelDoc2
+    swModelDoc1.Parameter("D2@Base-Flange1").SystemValue = H - 2 * SXZB - 6 / 1000#
+ElseIf m >= 61 / 1000# Then
+    Set swcomponent = swAssem.GetComponentByName(addsuffix(suffix, "LH-2020-1"))
+    swcomponent.SetSuppression2 2 '2 UNSUPPRESS,1 lightweight,0 suppressed
+    Set swModelDoc1 = swcomponent.GetModelDoc2
+    swModelDoc1.Parameter("D2@Base-Flange1").SystemValue = H - 2 * SXZB - 6 / 1000#
+End If
+
+'****************MIDDLE ROOF****************************
+'------EX MAIN BODY back
+'MNSF0120
+
+Set swcomponent = swAssem.GetComponentByName(addsuffix(suffix, "MNSF0120-1"))
+Set swModelDoc1 = swcomponent.GetModelDoc2
+'SW修改参数语句
+swModelDoc1.Parameter("Thickness@Sheet-Metal").SystemValue = THICK
+swModelDoc1.Parameter("D1@Sketch2").SystemValue = OB
+swModelDoc1.Parameter("D2@Sketch2").SystemValue = (OH - H) / 2 + THICK
+swModelDoc1.Parameter("D2@Sketch9").SystemValue = OW
+swModelDoc1.Parameter("D1@Sketch9").SystemValue = B - THICK * 2
+swModelDoc1.Parameter("D7@Edge-Flange2").SystemValue = SXZB
+swModelDoc1.Parameter("D7@Edge-Flange3").SystemValue = SXZBH
+swModelDoc1.Parameter("D3@Sketch19").SystemValue = 20 / 1000#
+swModelDoc1.Parameter("D2@Sketch19").SystemValue = 54 / 1000#
+swModelDoc1.Parameter("D1@LPattern1").SystemValue = Int((B - THICK * 2 - 54 / 1000# * 2) / MLDJJ) + 1
+swModelDoc1.Parameter("D3@LPattern1").SystemValue = (B - THICK * 2 - 54 / 1000# * 2) / Int((B - THICK * 2 - 54 / 1000# * 2) / MLDJJ)
+
+swModelDoc1.Parameter("D6@Sketch9").SystemValue = THICK / 2
+swModelDoc1.Parameter("D3@Sketch20").SystemValue = BBj
+swModelDoc1.Parameter("D2@Sketch20").SystemValue = HBj
+swModelDoc1.Parameter("D1@Sketch20").SystemValue = Zj
+swModelDoc1.Parameter("D1@Sketch21").SystemValue = BKjj
+swModelDoc1.Parameter("D1@LPattern2").SystemValue = Int((OB - BBj * 2 - BKjj) / BXLJJ) + 1
+swModelDoc1.Parameter("D3@LPattern2").SystemValue = (OB - BBj * 2 - BKjj * 2) / Int((OB - BBj * 2 - BKjj) / BXLJJ)
+
+swModelDoc1.Parameter("D1@LPattern3").SystemValue = Int((B - THICK * 2 - 20 / 1000# * 2) / (MLDJJ + 50 / 1000#)) + 1
+swModelDoc1.Parameter("D3@LPattern3").SystemValue = (B - THICK * 2 - 20 / 1000# * 2) / Int((B - THICK * 2 - 20 / 1000# * 2) / (MLDJJ + 50 / 1000#))
+
+
+
+'***************SIDEPANEL****************************D5@Sketch9
+'------EX MAIN BODY back
+'MNSF0119
+Set swcomponent = swAssem.GetComponentByName(addsuffix(suffix, "MNSF0119-1"))
+Set swModelDoc1 = swcomponent.GetModelDoc2
+'SW修改参数语句
+swModelDoc1.Parameter("Thickness@Sheet-Metal").SystemValue = THICK
+swModelDoc1.Parameter("D1@Sketch2").SystemValue = OB
+swModelDoc1.Parameter("D2@Sketch2").SystemValue = (OH - H) / 2 + THICK
+swModelDoc1.Parameter("D2@Sketch9").SystemValue = OW
+swModelDoc1.Parameter("D6@Sketch9").SystemValue = B - THICK * 2
+swModelDoc1.Parameter("D5@Sketch9").SystemValue = THICK / 2
+swModelDoc1.Parameter("D7@Edge-Flange2").SystemValue = SXZB
+swModelDoc1.Parameter("D7@Edge-Flange3").SystemValue = SXZBH
+swModelDoc1.Parameter("D3@Sketch19").SystemValue = 20 / 1000#
+swModelDoc1.Parameter("D2@Sketch19").SystemValue = 54 / 1000#
+swModelDoc1.Parameter("D1@LPattern1").SystemValue = Int((B - THICK * 2 - 54 / 1000# * 2) / MLDJJ) + 1
+swModelDoc1.Parameter("D3@LPattern1").SystemValue = (B - THICK * 2 - 54 / 1000# * 2) / Int((B - THICK * 2 - 54 / 1000# * 2) / MLDJJ)
+
+swModelDoc1.Parameter("D3@Sketch20").SystemValue = BBj
+swModelDoc1.Parameter("D2@Sketch20").SystemValue = HBj
+swModelDoc1.Parameter("D1@Sketch20").SystemValue = Zj
+swModelDoc1.Parameter("D1@Sketch21").SystemValue = BKjj
+swModelDoc1.Parameter("D1@LPattern2").SystemValue = Int((OB - BBj * 2 - BKjj) / BXLJJ) + 1
+swModelDoc1.Parameter("D3@LPattern2").SystemValue = (OB - BBj * 2 - BKjj * 2) / Int((OB - BBj * 2 - BKjj) / BXLJJ)
+
+swModelDoc1.Parameter("D1@LPattern3").SystemValue = Int((B - THICK * 2 - 20 / 1000# * 2) / (MLDJJ + 50 / 1000#)) + 1
+swModelDoc1.Parameter("D3@LPattern3").SystemValue = (B - THICK * 2 - 20 / 1000# * 2) / Int((B - THICK * 2 - 20 / 1000# * 2) / (MLDJJ + 50 / 1000#))
+
+
+'****************SUPPLY*******************************
+'------EX MAIN BODY back
+'MNSF0121
+Set swcomponent = swAssem.GetComponentByName(addsuffix(suffix, "MNSF0121-5"))
+Set swModelDoc1 = swcomponent.GetModelDoc2
+'SW修改参数语句
+swModelDoc1.Parameter("Thickness@Sheet-Metal").SystemValue = THICK
+swModelDoc1.Parameter("D1@Sketch2").SystemValue = H - 2 * THICK
+swModelDoc1.Parameter("D2@Sketch2").SystemValue = (OB - B) / 2 + THICK
+swModelDoc1.Parameter("D2@Sketch9").SystemValue = OW
+swModelDoc1.Parameter("D7@Edge-Flange2").SystemValue = ZYZB
+swModelDoc1.Parameter("D7@Edge-Flange3").SystemValue = ZYZBH
+swModelDoc1.Parameter("D1@Sketch12").SystemValue = SXZB - THICK
+swModelDoc1.Parameter("D3@Sketch21").SystemValue = HKjj - ((OH - H) / 2 + THICK) + HBj
+swModelDoc1.Parameter("D1@Sketch21").SystemValue = BBj
+swModelDoc1.Parameter("D2@Sketch21").SystemValue = Zj
+swModelDoc1.Parameter("D1@LPattern2").SystemValue = Int((H - THICK * 2 - (HKjj - (((OH - H) / 2 + THICK) - HBj) * 2)) / HXLJJ) + 1
+swModelDoc1.Parameter("D3@LPattern2").SystemValue = (H - THICK * 2 - 2 * (HKjj - (((OH - H) / 2 + THICK) - HBj))) / Int((H - THICK * 2 - (HKjj - (((OH - H) / 2 + THICK) - HBj) * 2)) / HXLJJ)
+swModelDoc1.Parameter("D5@Sketch9").SystemValue = THICK / 2
+
+
+
+
+
+
+
+'****************SUPPLY*******************************
+'------EX MAIN BODY back
+'MNSF0121-1
+
+Set swcomponent = swAssem.GetComponentByName(addsuffix(suffix, "MNSF0121-1-1"))
+Set swModelDoc1 = swcomponent.GetModelDoc2
+'SW修改参数语句
+swModelDoc1.Parameter("Thickness@Sheet-Metal").SystemValue = THICK
+swModelDoc1.Parameter("D1@Sketch2").SystemValue = H - 2 * THICK
+swModelDoc1.Parameter("D2@Sketch2").SystemValue = (OB - B) / 2 + THICK
+swModelDoc1.Parameter("D2@Sketch9").SystemValue = OW
+swModelDoc1.Parameter("D7@Edge-Flange2").SystemValue = ZYZB
+swModelDoc1.Parameter("D7@Edge-Flange3").SystemValue = ZYZBH
+swModelDoc1.Parameter("D1@Sketch12").SystemValue = SXZB - THICK
+swModelDoc1.Parameter("D3@Sketch21").SystemValue = HKjj - ((OH - H) / 2 + THICK) + HBj
+swModelDoc1.Parameter("D1@Sketch21").SystemValue = BBj
+swModelDoc1.Parameter("D2@Sketch21").SystemValue = Zj
+swModelDoc1.Parameter("D1@LPattern2").SystemValue = Int((H - THICK * 2 - (HKjj - (((OH - H) / 2 + THICK) - HBj) * 2)) / HXLJJ) + 1
+swModelDoc1.Parameter("D3@LPattern2").SystemValue = (H - THICK * 2 - 2 * (HKjj - (((OH - H) / 2 + THICK) - HBj))) / Int((H - THICK * 2 - (HKjj - (((OH - H) / 2 + THICK) - HBj) * 2)) / HXLJJ)
+swModelDoc1.Parameter("D5@Sketch9").SystemValue = THICK / 2
+
+
+'MNSO0041
+
+Set swcomponent = swAssem.GetComponentByName(addsuffix(suffix, "MNSO0041-8"))
+Set swModelDoc1 = swcomponent.GetModelDoc2
+'SW修改参数语句
+swModelDoc1.Parameter("D2@Base-Flange1").SystemValue = H - SXZB * 2
+swModelDoc1.Parameter("D2@Sketch2").SystemValue = ZYZB
+swModelDoc1.Parameter("D1@Sketch2").SystemValue = 54 / 1000#
+swModelDoc1.Parameter("D7@Edge-Flange1").SystemValue = ZYZB - 2 / 1000#
+
+
+
+swModelDoc1.Parameter("D1@LPattern3").SystemValue = Int((H - SXZB * 2 - 40 / 1000# * 2) / HXLJJ) + 1
+swModelDoc1.Parameter("D3@LPattern3").SystemValue = (H - SXZB * 2 - 40 / 1000# * 2) / Int((H - SXZB * 2 - 40 / 1000# * 2) / HXLJJ)
+
+
+'MNSO0042
+Set swcomponent = swAssem.GetComponentByName(addsuffix(suffix, "MNSO0042-3"))
+Set swModelDoc1 = swcomponent.GetModelDoc2
+'SW修改参数语句
+swModelDoc1.Parameter("D4@Sketch1").SystemValue = H - SXZB * 2
+swModelDoc1.Parameter("D3@Sketch1").SystemValue = 98 / 1000#
+
+swModelDoc1.Parameter("D1@Sketch2").SystemValue = 40 / 1000#
+
+swModelDoc1.Parameter("D1@LPattern1").SystemValue = Int((H - SXZB * 2 - 2 * 40 / 1000#) / HXLJJ) + 1
+
+swModelDoc1.Parameter("D3@LPattern1").SystemValue = (H - SXZB * 2 - 2 * 40 / 1000#) / Int((H - SXZB * 2 - 2 * 40 / 1000#) / HXLJJ)
+
+
+
+'MNSS0007
+Set swcomponent = swAssem.GetComponentByName(addsuffix(suffix, "MNSS0007-1"))
+Set swModelDoc1 = swcomponent.GetModelDoc2
+'SW修改参数语句
+swModelDoc1.Parameter("D2@Base-Flange1").SystemValue = B - 2 * THICK
+swModelDoc1.Parameter("D1@Sketch3").SystemValue = 104 / 1000#
+swModelDoc1.Parameter("D2@Sketch3").SystemValue = SXZB - THICK
+swModelDoc1.Parameter("D3@Sketch8").SystemValue = 135 / 1000#
+If B <= 700 / 1000# Then
+   x = 2
+   swModelDoc1.Parameter("D1@LPattern4").SystemValue = x
+   swModelDoc1.Parameter("D3@LPattern4").SystemValue = B - 2 * THICK - 270 / 1000#
+ElseIf B > 700 / 1000# And B <= 1200 / 1000# Then
+   x = 3
+   
+   ElseIf B > 1200 / 1000# And B <= 1600 / 1000# Then
+   x = 4
+swModelDoc1.Parameter("D1@LPattern4").SystemValue = x
+   swModelDoc1.Parameter("D3@LPattern4").SystemValue = (B - 2 * THICK - 270 / 1000#) / (x - 1)
+
+End If
+
+
+'MNSS0008
+Set swcomponent = swAssem.GetComponentByName(addsuffix(suffix, "MNSS0008-7"))
+Set swModelDoc1 = swcomponent.GetModelDoc2
+'SW修改参数语句
+swModelDoc1.Parameter("D2@Base-Flange1").SystemValue = B - 2 * THICK
+swModelDoc1.Parameter("D1@Sketch3").SystemValue = 104 / 1000#
+swModelDoc1.Parameter("D2@Sketch3").SystemValue = SXZB - THICK
+swModelDoc1.Parameter("D3@Sketch8").SystemValue = 135 / 1000#
+If B <= 700 / 1000# Then
+   x = 2
+swModelDoc1.Parameter("D1@LPattern4").SystemValue = x
+swModelDoc1.Parameter("D3@LPattern4").SystemValue = B - 2 * THICK - 270 / 1000#
+ElseIf B > 700 / 1000# And B <= 1200 / 1000# Then
+   x = 3
+swModelDoc1.Parameter("D1@LPattern4").SystemValue = x
+
+swModelDoc1.Parameter("D3@LPattern4").SystemValue = (B - 2 * THICK - 270 / 1000#) / (x - 1)
+ElseIf B > 1200 / 1000# And B <= 1600 / 1000# Then
+   x = 4
+swModelDoc1.Parameter("D1@LocalLPattern1").SystemValue = x
+swModelDoc1.Parameter("D3@LocalLPattern1").SystemValue = (B - 2 * THICK - 270 / 1000#) / (x - 1)
+
+End If
+swModelDoc1.Parameter("D1@LPattern5").SystemValue = Int((B / 2) / (28.5 / 1000#))
+swModelDoc1.Parameter("D2@LPattern5").SystemValue = Int((B / 2) / (28.5 / 1000#))
+swModelDoc1.Parameter("D3@LPattern5").SystemValue = 28.5 / 1000#
+swModelDoc1.Parameter("D4@LPattern5").SystemValue = 28.5 / 1000#
+swModelDoc1.Parameter("D1@LPattern3").SystemValue = Int((B - (2 * 48 / 1000#)) / (150 / 1000#)) + 1 '虚拟间距150
+swModelDoc1.Parameter("D3@LPattern3").SystemValue = (B - (2 * 48 / 1000#)) / Int((B - (2 * 48 / 1000#)) / (150 / 1000#))
+
+
+
+'****************SUPPLY*******************************MNSO0038
+'------EX MAIN BODY back
+'MNSO0037
+Set swcomponent = swAssem.GetComponentByName(addsuffix(suffix, "MNSO0037-1"))
+Set swModelDoc1 = swcomponent.GetModelDoc2
+'SW修改参数语句
+swModelDoc1.Parameter("D2@Base-Flange1").SystemValue = B - ZYZB * 2 - 2 / 1000#
+swModelDoc1.Parameter("D1@LPattern4").SystemValue = Int(((B - ZYZB * 2 - 2 / 1000#) - (2 * 25 / 1000#)) / MLDJJ) + 1   '铆螺母虚拟间距
+swModelDoc1.Parameter("D3@LPattern4").SystemValue = ((B - ZYZB * 2 - 2 / 1000#) - (2 * 25 / 1000#)) / Int(((B - ZYZB * 2 - 2 / 1000#) - (2 * 25 / 1000#)) / MLDJJ)
+
+
+swModelDoc1.Parameter("D1@LPattern3").SystemValue = Int(((B - ZYZB * 2 - 2 / 1000#) - (45 / 1000#)) / (28.5 / 1000#)) + 1
+swModelDoc1.Parameter("D3@LPattern3").SystemValue = 28.5 / 1000#
+
+
+'MNSO0038
+Set swcomponent = swAssem.GetComponentByName(addsuffix(suffix, "MNSO0038-2"))
+Set swModelDoc1 = swcomponent.GetModelDoc2
+'SW修改参数语句
+swModelDoc1.Parameter("D2@Base-Flange1").SystemValue = B - ZYZB * 2 - 2 / 1000#
+swModelDoc1.Parameter("D1@LPattern4").SystemValue = Int(((B - ZYZB * 2 - 2 / 1000#) - (2 * 25 / 1000#)) / MLDJJ) + 1   '铆螺母虚拟间距
+swModelDoc1.Parameter("D3@LPattern4").SystemValue = ((B - ZYZB * 2 - 2 / 1000#) - (2 * 25 / 1000#)) / Int(((B - ZYZB * 2 - 2 / 1000#) - (2 * 25 / 1000#)) / MLDJJ)
+
+
+swModelDoc1.Parameter("D1@LPattern3").SystemValue = Int(((B - ZYZB * 2 - 2 / 1000#) - (45 / 1000#)) / (28.5 / 1000#)) + 1
+swModelDoc1.Parameter("D3@LPattern3").SystemValue = 28.5 / 1000#
+
+
+'****************SUPPLY*******************************
+'------EX MAIN BODY back
+'MNSO0039
+Set swcomponent = swAssem.GetComponentByName(addsuffix(suffix, "MNSO0039-1"))
+Set swModelDoc1 = swcomponent.GetModelDoc2
+'SW修改参数语句
+swModelDoc1.Parameter("D2@Sketch1").SystemValue = B - 2 * THICK
+swModelDoc1.Parameter("D1@Sketch1").SystemValue = SXZB - THICK
+swModelDoc1.Parameter("D1@Sketch9").SystemValue = ZYZB
+
+'MNSO0040
+Set swcomponent = swAssem.GetComponentByName(addsuffix(suffix, "MNSO0040-1"))
+Set swModelDoc1 = swcomponent.GetModelDoc2
+'SW修改参数语句
+swModelDoc1.Parameter("D2@Sketch1").SystemValue = B - 2 * THICK
+swModelDoc1.Parameter("D1@Sketch1").SystemValue = SXZB - THICK
+swModelDoc1.Parameter("D1@Sketch9").SystemValue = ZYZB
+
+
+
+
+'****************SUPPLY*******************************
+'------EX MAIN BODY back
+'叶片
+'MNSD0001
+
+Set swcomponent = swAssem.GetComponentByName(addsuffix(suffix, "MNSD0001-2"))
+Set swModelDoc1 = swcomponent.GetModelDoc2
+'SW修改参数语句
+swModelDoc1.Parameter("D2@Base-Flange1").SystemValue = H - 2 * SXZB - 6 / 1000#
+'MNSD0004
+Set swcomponent = swAssem.GetComponentByName(addsuffix(suffix, "MNSD0004-1"))
+Set swModelDoc1 = swcomponent.GetModelDoc2
+'SW修改参数语句
+swModelDoc1.Parameter("D2@Base-Flange1").SystemValue = H - 2 * SXZB - 6 / 1000#
+'MNSD0005
+Set swcomponent = swAssem.GetComponentByName(addsuffix(suffix, "MNSD0005-1"))
+Set swModelDoc1 = swcomponent.GetModelDoc2
+'SW修改参数语句
+swModelDoc1.Parameter("D2@Base-Flange1").SystemValue = H - 2 * SXZB - 6 / 1000#
+'MNSD0006
+Set swcomponent = swAssem.GetComponentByName(addsuffix(suffix, "MNSD0006-1"))
+Set swModelDoc1 = swcomponent.GetModelDoc2
+'SW修改参数语句
+swModelDoc1.Parameter("D2@Base-Flange1").SystemValue = H - 2 * SXZB - 6 / 1000#
+'2100900001
+Set swcomponent = swAssem.GetComponentByName(addsuffix(suffix, "2100900001-1"))
+Set swModelDoc1 = swcomponent.GetModelDoc2
+'SW修改参数语句
+swModelDoc1.Parameter("D1@Extrude1").SystemValue = B - 2 * ZYZB - 15 / 1000#
+
+
+
+
+
+
+'****************SUPPLY*******************************
+'------EX MAIN BODY back
+'****************SUPPLY*******************************
+'------EX MAIN BODY back
+
+'****************SUPPLY*******************************
+'------EX MAIN BODY back
+
+'****************SUPPLY*******************************
+'------EX MAIN BODY back
+
+'****************SUPPLY*******************************
+'------EX MAIN BODY back
+
+'****************SUPPLY*******************************
+'------EX MAIN BODY back
+
+
+
+swAssem.EditRebuild 'rebuild
+swAssem.Save
+'swApp.CloseDoc (swAssem.GetTitle)
+'Set swAssem = Nothing
+MsgBox "Job Done! " & "Program timer：" & Timer - Tstart & "(S)"
+
+End Sub
+Function addsuffix(suffix, partname)
+        addsuffix = partname + suffix
+End Function
+
